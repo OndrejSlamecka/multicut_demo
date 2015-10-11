@@ -40,17 +40,12 @@ Multiway Cuts in Sparse Graphs
 
 \begin{frame}
 	\frametitle{Accidents, disasters and roads}
-	\includegraphics[width=\textwidth]{images/accident.jpg}
-\end{frame}
-
-\begin{frame}
-	\frametitle{Accidents, disasters and roads}
 	\includegraphics[width=\textwidth]{images/kobra_11.jpg}
 \end{frame}
 
 \begin{frame}
 	\frametitle{Networks}
-	Roads, internet, electricity grid,\ldots
+	Not just roads but also internet, electrical grid,\ldots
 
 	\includegraphics[width=\textwidth]{images/road_network.jpg}
 \end{frame}
@@ -66,19 +61,13 @@ Multiway Cuts in Sparse Graphs
 
 	\bigskip
 
-	Not
-	\begin{itemize}
-		\item a single $s,t$ cut,
-		\item minimal cuts with respect to set size,
-		\item minimal cuts with respect to edge weight sum,
-		\item with some specific condition (like planarity).
-	\end{itemize}
-
 	\bigskip
 	\textbf{The problem is \#P-complete}
 
 	We'll introduce parameter $m$ and limit our problem to finding cuts $\lvert
 	X \rvert \leq m$.
+
+    For practical purposes there is no need for $m$ to be big.
 
 
 \end{frame}
@@ -86,29 +75,56 @@ Multiway Cuts in Sparse Graphs
 \begin{frame}[fragile]
 	\frametitle{State of the art}
 
-		Jen výpočet všech až $m$-prvkových kombinací a~spočtení komponent grafu po odebrání každé kombinace.
+    The trivial approach: for each combination of up to $m$ edges count
+    the components of the graph without these edges.
 
-		Cactus.
+    \medskip
 
-	Gomory-Hu?
+    Reinelt, Wenger: Generating partitions
+    of a graph into a fixed number of minimum weight cuts.
 
-	zmin google scholar, kde jsou clanky s jinym obsahem (napr. ocekavaji planaritu).
+    \medskip
+
+    When searching for previous work we had to filter out a lot papers
+    dealing with seemingly similar but different problems.
+
+    \medskip
+
+	Our problem is not
+	\begin{itemize}
+		\item a single $s,t$ cut,
+		\item minimal cuts with respect to set size,
+		\item minimal cuts with respect to edge weight sum,
+		\item with some specific condition (like planarity).
+	\end{itemize}
 
 \end{frame}
 
 \begin{frame}[fragile]
-	\frametitle{Navržený algoritmus pro $k = 2$}
+    \frametitle{General idea}
 
-	Využije se následující fakt: Jestliže $X \subseteq E(G)$ je minimální řez a $C \subseteq E(G)$ kružnice, potom $\lvert C \cap X \rvert \neq 1$.
+    # Matroid theory theorem for cocircuits
 
-	Pro všechna $b$ z libovolné kostry grafu $G$ voláme \textsc{GenCocircuits}($\{b\}$).
+\end{frame}
+
+\begin{frame}[fragile]
+	\frametitle{Graph algorithm when $k$ equals $2$}
+
+	If $X \subseteq E(G)$ is minimal cut and $C \subseteq E(G)$ a cycle,
+    then $\lvert C \cap X \rvert \neq 1$.
+
+    \bigskip
+
+    For all $b$ from arbitrary spanning tree of $G$ invoke \textsc{GenCocircuits}($\{b\}$).
 
 	\textbf{\textsc{Function GenCocircuits}($X$)}
 	\begin{enumerate}
-		\item Jestliže $\lvert X \rvert > m$ \textbf{nebo} vrcholy některé ze \uv{stran} $X$ nelze spojit souvislým podgrafem $G$, potom skonči.
-		\item Najdi kružnici $C$, takovou že $\lvert C \cap X \rvert = 1$.
-		\item Pokud neexistuje, $X$ je minimální řez.
-		\item Pokud existuje, pak pro každé $c \in (C \setminus X)$: \\
+		\item If $\lvert X \rvert > m$ \textbf{or} vertices of any
+            ``side'' of $X$ cannot be connected by a subgraph of $G$,
+            then halt here.
+		\item Find a cycle $C$, such that $\lvert C \cap X \rvert = 1$.
+		\item If there is no such $C$, then $X$ is a minimal cut.
+		\item If there is such $C$, then for each $c \in (C \setminus X)$: \\
 			\hspace{12pt} \textsc{GenCocircuits}($X \cup \{c\}$).
 	\end{enumerate}
 
@@ -116,14 +132,13 @@ Multiway Cuts in Sparse Graphs
 
 
 \begin{frame}
-	\frametitle{Ukázka}
+	\frametitle{Example}
 
-
-	Jednu stranu budoucího řezu barvíme červeně, druhou modře.
+    Colour one side of the future cut red and the other blue.
 	\center
 	\begin{multicols}{2}
 
-		Vstupní graf (kostra zvýrazněna) \\
+        Input graph (spanning tree thick) \\
 	\medskip
 \begin{tikzpicture}[
   vertex/.style={draw,circle,minimum size=0.8cm},
@@ -151,7 +166,7 @@ Multiway Cuts in Sparse Graphs
 \\
 $   $ \\
 
-1. krok \\
+1. step \\
 	\medskip
 \begin{tikzpicture}[
   vertex/.style={draw,circle,minimum size=0.8cm},
@@ -187,14 +202,14 @@ $   $ \\
 
 
 \begin{frame}
-	\frametitle{Ukázka}
+	\frametitle{Example}
 
-	Jednu stranu budoucího řezu barvíme červeně, druhou modře.
+    Colour one side of the future cut red and the other blue.
 
 	\center
 	\begin{multicols}{2}
 
-1. krok \\
+1. step \\
 	\medskip
 \begin{tikzpicture}[
   vertex/.style={draw,circle,minimum size=0.8cm},
@@ -226,7 +241,7 @@ $   $ \\
  \\
  $X = \{ (2,3) \}$
 
-1. krok, 1. rekurzivní zanoření \\
+1. step, 1. recursive call \\
 	\medskip
 \begin{tikzpicture}[
   vertex/.style={draw,circle,minimum size=0.8cm},
@@ -263,13 +278,13 @@ $   $ \\
 \end{frame}
 
 \begin{frame}
-	\frametitle{Ukázka}
+	\frametitle{Example}
 
-	Jednu stranu budoucího řezu barvíme červeně, druhou modře.
+    Colour one side of the future cut red and the other blue.
 	\center
 	\begin{multicols}{2}
 
-		1. krok (zpět z rekurze) \\
+		1. step (back from recursive call) \\
 	\medskip
 \begin{tikzpicture}[
   vertex/.style={draw,circle,minimum size=0.8cm},
@@ -301,7 +316,7 @@ $   $ \\
  \\
  $X = \{ (2,3) \}$
 
-1. krok, 2. rekurzivní zanoření \\
+1. step, 2. recursive call \\
 	\medskip
 \begin{tikzpicture}[
   vertex/.style={draw,circle,minimum size=0.8cm},
@@ -337,27 +352,37 @@ $   $ \\
 \end{frame}
 
 \begin{frame}
-	\frametitle{Ukázka}
+	\frametitle{Example}
 
-	Takto bychom dokončili modře vyznačenou kružnici a~opakovali postup s další hranou kostry.
+    We would continue to finish the blue cycle and repeat the algorithm
+    with another edge of the selected spanning tree.
+
+    \bigskip
+
+    The total result: a set of 2-way minimal cuts -- 2-bonds.
 \end{frame}
 
 \begin{frame}
-	\frametitle{Mnohočetné řezy}
+	\frametitle{$k$-way cuts}
 
-	Máme dvojstranný řez $X$ grafu $G$. Trojstranný řez získáme rekurzivní aplikací algoritmu na komponenty $G \setminus X$.
+    Let $X$ be a 2-bond of a graph $G$. We can apply the algorithm
+    recursively to each component of $G \setminus X$ to get all the
+    3-bonds extending $X$.
 
-	Na začátku nyní volíme \textit{spanning forest}.
+    \bigskip
+
+    The same matroid algorithm, only the matroid definition changes.
+    In effect we have to choose a spanning forest.
 
 \end{frame}
 
 \begin{frame}
-	\frametitle{Ukázka}
+	\frametitle{$k$-way cuts example}
 
 	\center
 	\begin{multicols}{2}
 
-	Vstupní graf (SF zvýrazněn) \\
+	Input graph (SF thick) \\
 	\medskip
 \begin{tikzpicture}[
   vertex/.style={draw,circle,minimum size=0.8cm},
@@ -383,7 +408,7 @@ $   $ \\
 \\
 $  $ \\
 
-2. krok \\
+2. step \\
 	\medskip
 \begin{tikzpicture}[
   vertex/.style={draw,circle,minimum size=0.8cm},
