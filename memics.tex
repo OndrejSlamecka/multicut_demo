@@ -3,15 +3,15 @@
 \beamertemplatenavigationsymbolsempty
 
 \usepackage{multicol}
-\usepackage[czech]{babel}
+\usepackage[czech, english]{babel}
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
 \usepackage{booktabs}
 \usepackage[scale=2]{ccicons}
 
 \usepackage{diagbox}
-\newcommand{\labelkm}{\scriptsize \diagbox[width=13pt,height=15pt]
-        {\raisebox{-0pt}{k}}{ \raisebox{1pt}{m} } }
+\newcommand{\labelkm}{\scriptsize \diagbox[width=24pt,height=15pt]
+        {\raisebox{-0pt}{k}}{ m } }
 
 
 \usepackage{tikz}
@@ -87,10 +87,10 @@ Multiway Cuts in Sparse Graphs
 	\bigskip
 	\textbf{The problem is \#P-complete}
 
-	We'll introduce parameter $m$ and limit our problem to finding cuts $\lvert
+	We'll introduce parameter $m$ and limit our problem to finding all cuts $X$, such that $\lvert
 	X \rvert \leq m$.
 
-	\smallskip
+	\medskip
 
     For practical purposes there is no need for $m$ to be big.
 
@@ -128,18 +128,41 @@ Multiway Cuts in Sparse Graphs
 \begin{frame}[fragile]
     \frametitle{General idea}
 
-     Matroid theory theorem for cocircuits
+	Let $M = (E, \mathcal{B})$ be a matroid. \\
+
+	\bigskip
+
+	If $C$ is a~circuit and $X$ is a cocircuit in a matroid $M$, then ${\lvert C \cap X \rvert \neq 1}$.
+
+	\bigskip
+
+	The algorithm:\\
+    For all $b$ from an arbitrary basis of $M$ invoke \textsc{GenCocircuits}($\{b\}$).
+
+	\textbf{\textsc{Function GenCocircuits}($X$)}
+	\begin{enumerate}
+		\item If $\lvert X \rvert > m$ \textbf{or} $E \setminus X$ contains no hyperplane of $M$, then halt here.
+		\item Find a circuit $C$, such that $\lvert C \cap X \rvert = 1$.
+		\item If there is no such $C$, then $X$ is a cocircuit.
+		\item If there is such $C$, then for each $c \in (C \setminus X)$: \\
+			\hspace{12pt} \textsc{GenCocircuits}($X \cup \{c\}$).
+	\end{enumerate}
 
 \end{frame}
 
 \begin{frame}[fragile]
 	\frametitle{Graph algorithm when $k$ equals $2$}
 
+	Let $G = (V, E)$ be a graph. \\
+
+	\bigskip
+
 	If $X \subseteq E(G)$ is minimal cut and $C \subseteq E(G)$ a cycle,
     then $\lvert C \cap X \rvert \neq 1$.
 
     \bigskip
 
+	The algorithm:\\
     For all $b$ from arbitrary spanning tree of $G$ invoke \textsc{GenCocircuits}($\{b\}$).
 
 	\textbf{\textsc{Function GenCocircuits}($X$)}
@@ -155,7 +178,7 @@ Multiway Cuts in Sparse Graphs
 
 \end{frame}
 
-\input{example_2bond.tex}
+\input{fig/example_2bond.tex}
 
 \begin{frame}
 	\frametitle{Example}
@@ -182,7 +205,7 @@ Multiway Cuts in Sparse Graphs
 
 \end{frame}
 
-\input{example_kbond.tex}
+\input{fig/example_kbond.tex}
 
 \begin{frame}
 	\frametitle{Permutations}
@@ -226,11 +249,22 @@ Multiway Cuts in Sparse Graphs
 \begin{frame}
 	\frametitle{Canonical generation}
 
-	The canonical construction path scheme. The idea of Brendan McKay used in {\tt nauty} (tool for generating groups of graphs automorphisms).
+	The canonical construction path scheme. The idea of Brendan McKay used in {\tt nauty} (tool for generating groups of graph automorphisms).
 
 	\bigskip
 
 	The canonical form of a bond is chosen in advance. In each step of computation the algorithm evaluates whether the set $X$ can be extended, with the edge which is currently being processed, without breaking the canonical form.
+
+\end{frame}
+
+\begin{frame}
+	\frametitle{A glitch in canonical generation}
+
+	\input{fig/failed_to_canonize.tex}
+
+	\bigskip
+
+	Not significant for practical purposes.
 
 \end{frame}
 
@@ -245,94 +279,132 @@ Multiway Cuts in Sparse Graphs
 		\item Fast hyperplane existence testing (in graph terms: existence of two graphs interconnecting each side of a cut).
 	\end{itemize}
 
+	\bigskip
+	Available online at \href{https://github.com/OndrejSlamecka/mincuts}{\url{https://github.com/OndrejSlamecka/mincuts}}.
+
 \end{frame}
 
-\section{Evaluace}
+\begin{frame}
+	\frametitle{Evaluation}
+
+    \begin{table}[H]
+        \caption{Running time of an implementation of the canonical
+            generation in seconds. Zlín Region}
+        \label{tab:runtimeZ}
+        \centering
+        \begin{tabular}{c|rrrrrrrr}
+
+    \hline%\toprule
+\labelkm&        2 &         3 &       4 &      5 &      6 &       7 &      8  \\[2pt]
+	\hline%\midrule
+     2  &      0.0 &       0.1 &       1 &      2 &      9 &     42  &  210     \\
+    \evenrowcolor
+     3  &      0.6 &      2.8  &     13  &     53 &   223  &    986  &  4604    \\
+     4  &          &     29.5  &    198  &   1018 &   4771 &   21269 &  -       \\
+    \evenrowcolor
+     5  &          &           &   1156  &   9885 &  56847 &    -    & -        \\
+        \end{tabular}
+    \end{table}
+
+
+
+    \begin{table}[H]
+        \caption{Running time of an implementation of the canonical
+            generation in seconds. Olomouc Region}
+        \label{tab:runtimeO}
+        \centering
+        \begin{tabular}{c|rrrrrrrr}
+    \hline%\toprule
+\labelkm    &       2 &        3 &      4 &      5 &      6 &      7 &      8 \\[2pt]
+    \hline
+          2 &    0.1 &      0.3 &      1 &      5 &     16 &     69 &    305 \\
+    \evenrowcolor
+          3 &     3.0 &     10.4 &     61 &    235 &    921 &   3482 &  13342 \\
+          4 &         &    158.3 &    781 &   6008 &     -  &      - &      - \\
+    \evenrowcolor
+          5 &         &          &   6205 &  43242 &     -  &      - &      - \\
+
+        \end{tabular}
+    \end{table}
+
+\end{frame}
 
 \begin{frame}
-	\frametitle{Evaluace}
+	\frametitle{Evaluation -- speedup with canonical generation}
+ \begin{table}[H]
+        \caption{Ratio of running times without
+             and with canonical generation.
+            Zlín (top) and Olomouc (bottom) Region}
+        \label{tab:ratiocan-time}
+        \centering
+        \begin{tabular}{c|rrrrrrrr}
 
-	\center
+    \hline
+\labelkm     &         2 &         3 &         4 &         5 &         6 &         7 \\
+    \hline
+          2  &     1.00  &      2.00 &      2.45 &      3.60 &       4.3 &      1.34 \\
+    \evenrowcolor
+          3  &      3.28 &      3.51 &      6.05 &      8.83 &     12.11 &     14.90 \\
+          4  &           &      8.40 &     11.32 &     15.73 &         - &         - \\
 
-\begin{table}[H]
-	\caption{Zlínský kraj -- doba výpočtu pro různá $k$ (rows) a $m$ (columns)}
+\noalign{\vskip 3mm}
+\hline
+\labelkm &         2 &         3 &         4 &         5 &         6 &     7  \\
+    \hline
+      2  &      1.14 &      1.93 &      1.91 &      2.18 &      4.30 &  5.06  \\
+      \evenrowcolor
+      3  &      1.97 &      3.47 &      4.49 &      6.69 &      8.31 &  9.41  \\
+      4  &           &      5.96 &     10.16 &     15.53 &         - &     -  \\
+
+        \end{tabular}
+
+	\end{table}
+
+
+\end{frame}
+
+\begin{frame}
+	\frametitle{Evaluation}
+
+\begin{table}[t]
 	\centering
-	\begin{tabular}{c|rrrrrrrr}
+	\caption{The distribution of lengths of the path $P$ from the algorithm.
+	Results of the computation on Zlín Region, $k = 3, m = 6$;
+	on the left showing the second level of recursion of {\tt GenStage}, on the right
+	the fifth level (the algorithm occasionally uses even longer paths in later {\tt
+		GenStage} calls).}
+	\label{tab:pathlengths}
 
-\toprule
-
-	&         2 &         3 &         4 &         5 &         6 &         7 &		8 	\\ \midrule
- 2	&      0 &      0.1 &      0.40 &      1.69 &      8.47 &     42 &	210	\\
-\evenrowcolor
- 3	&      0 &      2.77 &     12.50 &     53.38 &    223.15 &    986 &	4603	\\
- 4	&           &     29.49 &    197.92 &   1018.22 &   4771.04 &  21269 &	-		\\
-\evenrowcolor
- 5	&           &           &   1155.52 &   9884.54 &  56847.00 &	-	   & 	-		\\
-
-	\end{tabular}
+	\begin{minipage}[b]{0.49\linewidth}\centering
+		\includegraphics[scale=0.95]{fig/zlin_6_3_stage1_xsize2.pdf}
+	\end{minipage}
+	\begin{minipage}[b]{0.49\linewidth}\centering
+		\includegraphics[scale=0.95]{fig/zlin_6_3_stage1_xsize5.pdf}
+	\end{minipage}
 \end{table}
 
-\end{frame}
-
-\begin{frame}
-	\frametitle{Evaluace}
-
-	\begin{figure}
-		\includegraphics[scale=0.6]{images/capture1_2.PNG}
-	\end{figure}
 
 \end{frame}
 
 \begin{frame}
-	\frametitle{Evaluace -- kolik řezů algoritmus nezvládne kanonizovat}
+	\frametitle{Conclusion}
 
-\begin{table}[H]
-	\caption{Olomoucký kraj -- o kolik více generuje algoritmus ve srovnání se zcela kanonickým [\%]}
-	\centering
-	\begin{tabular}{c|rrrrrrrr}
+	Matroid setting provides an easy way to prove the correctness of the algorithm.
+	Graph implementations exploit the structure of sparse graphs.
 
-\toprule
+	\medskip
 
-            &         3 &         4 &         5 &         6 &         7 \\ \midrule
-         3  &     0,156 &     0,253 &     0,649 &     1,049 &     1,568 \\
-\evenrowcolor
-         4  &           &     0,352 &     0,541 &         -  &       -  \\
+	The current speed is suitable for most practical needs of Transport Research Centre (Centrum Dopravního Výzkumu).
 
-	\end{tabular}
-\end{table}
+	\bigskip
 
-\end{frame}
-
-\begin{frame}
-	\frametitle{Evaluace -- zrychlení kanonickým generováním}
-
-\begin{table}[H]
-	\caption{Kolikrát je kanonické generování rychlejší pro dané $k$~(řádky) a~$m$~(sloupce)}
-	\centering
-	\begin{tabular}{c|rrrrrrrr}
-
-\toprule
-
-   &         2 &         3 &         4 &         5 &         6 &     7 &     8 \\ \midrule
-2  &      1.14 &      1.93 &      1.91 &      2.18 &      4.30 &  5.06 &  5.57 \\
-\evenrowcolor
-3  &      1.97 &      3.47 &      4.49 &      6.69 &      8.31 &     - &     - \\
-4  &           &      5.96 &     10.16 &     15.53 &         - &     - &     - \\
-
-	\end{tabular}
-\end{table}
-
-\end{frame}
-
-\begin{frame}
-	\frametitle{Závěr}
-
-	Cíl práce byl splněn. Algoritmus i~s~implementací (mimo jiné) nejspíše poslouží Centru Dopravního Výzkumu.
-\\
-\bigskip
-
-Podněty pro další práci: Jak pojmout kanonické generování, aby bylo skutečně kanonické? Jak dále zrychlit implementaci?
-
+	There is a lot of room for future work.
+	\begin{itemize}
+		\item How to approach canonical generation such that it is truly canonical?
+		\item Compare our implementation with ``the cactus approach''.
+		\item How to improve the implementation of the two current bottlenecks
+			(hyperplane existence check and shortest path computation)?
+	\end{itemize}
 
 \end{frame}
 
